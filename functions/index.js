@@ -2,9 +2,10 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-var fireStore = admin.firestore()
-var userRef = fireStore.collection('users');
-var matchingRef = fireStore.collection('matching');
+let fireStore = admin.firestore()
+let userRef = fireStore.collection('users');
+let matchingRef = fireStore.collection('matching');
+let chatRef = fireStore.collection('chatrooms');
 
 /*
   動作確認用のfunction
@@ -43,6 +44,10 @@ exports.findMatchOnCreate = functions.firestore
           let match = likedUsersLikedList.some((v) => v.id == newUserId)
           if (match) {
             console.log(`Match found: ${newUserId} - ${likedUserId}!!`);
+            chatRef.doc(`${newUserId}_${likedUserId}`).set({
+              'messages':'',
+              'members': [newUserId, likedUserId]
+            });
             // TODO: APNにPUSH
           } else {
             console.log(`User ${likedUserId} does not like user ${newUserId}.`);
@@ -74,6 +79,10 @@ exports.findMatchOnUpdate = functions.firestore
           let match = likedUsersLikedList.some((v) => v.id == newUserId)
           if (match) {
             console.log(`Match found: ${newUserId} - ${likedUserId}!!`);
+            chatRef.doc(`${newUserId}_${likedUserId}`).set({
+              'messages':'',
+              'members': [`${newUserId}`, `${likedUserId}`]
+            });
             // TODO: APNにPUSH
           } else {
             console.log(`User ${likedUserId} does not like user ${newUserId}.`);
